@@ -271,3 +271,236 @@ Conhecemos o ecossistema do Elixir;
 Vimos que usamos o Hex para gerenciar pacotes;
 Entendemos o que é o Supervisor;
 Conhecemos o Mix.
+
+#### 09/09/2023
+
+@02-Processos
+
+@@01
+Projeto da aula anterior
+PRÓXIMA ATIVIDADE
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://github.com/alura-cursos/2323-elixir-3/archive/refs/tags/aula-1.zip
+
+@@02
+Spawn
+
+[00:00] Bem-vindos de volta a mais um capítulo desse treinamento. Finalmente vamos entender como uma aplicação em Elixir funciona.
+[00:07] Claro, não vamos criar uma aplicação complexa, mas estamos começando a entender como todo o ecossistema do Elixir funciona. E todo esse ecossistema gira em torno de um conceito muito importante, que são os processos de Elixir.
+
+[00:20] Talvez você já conheça bastante de programação e saiba como funcionam processos, mas isso é um pouco diferente. Então vamos dar uma olhada no guia do Elixir para eu não modificar nada do que você vai aprender baseado no que o guia explica para nós.
+
+[00:35] Ele começa com algumas afirmações óbvias para nós que já entendemos de computação: que todo código roda dentro de processos. Tudo em computação, toda execução de algum programa roda dentro de processos. Mas você já vai ver que isso é um pouco diferente.
+
+[00:48] Os processos são isolados entre si, de novo, o padrão entre processos. Eles rodam de forma concorrente, se comunicam através do envio de mensagens.
+
+[00:57] E agora começa a parte interessante: os processos são não só a base da concorrência do Elixir, mas eles também fornecem os meios para criarmos aplicações que são tolerantes a falhas. Nós criamos os programas que são tolerantes a falhas utilizando os processos do Elixir.
+
+[01:15] De novo, até aí tudo bem, pode ser uma definição bem genérica. E agora começamos a parte específica do Elixir. Os processos do Elixir não devem ser confundidos com processos do sistema operacional.
+
+[01:27] O que isso quer dizer? Quando eu crio um processo no meu código eu não estou criando um processo no meu sistema operacional direto.
+
+[01:35] Quando eu crio um processo no código, essa instrução vai para a Virtual Machine do Erlang e o Erlang vai criar uma estrutura interna dele que se assemelha a um processo.
+
+[01:47] Mas é o Erlang que vai gerenciar tudo, o escalonamento de processos, a criação e exclusão de processos. Tudo é o Erlang que vai gerenciar.
+
+[01:56] Quando cada processo vai executar e quanto tempo cada processo vai levar para executar o Erlang vai gerenciar, e com isso ganhamos muito em eficiência.
+
+[02:05] Então repara que processos em Elixir são extremamente leves, tanto em termos de memória quanto de CPU. Até quando comparamos com threads, que outras linguagens de programação permitem que criemos.
+
+[02:16] E por causa disso conseguimos ter uma aplicação com milhares de processos, e isso não necessariamente é um problema.
+
+[02:24] Claro que existe um certo custo na hora de criar um processo, mas esse custo é tão pequeno que podemos ter aplicações com milhares de processos.
+
+[02:33] Inclusive, quando trabalhamos com escrita em arquivos eu comentei que cada escrita acontece em um processo diferente. O Elixir cria um desses processos para escrever no arquivo. Então isso acontece de forma paralela, concorrente ao nosso código.
+
+[02:50] Por isso que se eu estiver dentro de uma recursão ou dentro de um loop com várias escritas de arquivo, é interessante eu minimizar o número de processo que vai ser criado. Talvez deixar um processo só criando vários desses arquivos, escrevendo nesses arquivos, e já falamos como tratar disso no treinamento anterior. Mas aqui isso começa a ficar um pouco mais claro.
+
+[03:10] Mas para eu criar um processo como podemos fazer? Nós utilizamos a função Spawn, que é basicamente iniciar um novo processo. Então vou abrir o terminal interativo do Elixir. E para criar um novo processo eu utilizo essa função Spawn.
+
+[03:26] E dentro o que ele espera é receber uma função, que vai fazer alguma coisa. Por exemplo, vou fazer spawn(fn -> IO.puts(“Estou em outro processo”). E finalizei essa função com um end. Agora eu posso executar esse código. Vamos ver o que acontece quando executo.
+
+[03:44] Simples, ele só exibe “Estou em outro processo”. Só que esse puts retorna um “ok”, e eu vou até executar para você se lembrar. Já o Spawn devolve um PID, que é Process ID. É um identificador para esse processo.
+
+[04:04] Só que não devemos confundir esse PID com o PID do nosso sistema operacional, porque os processos do sistema operacional também possuem IDs. Só que esse ID não vai casar com o ID do processo do sistema operacional da Erlang, por exemplo.
+
+[04:18] Para vermos outro exemplo eu vou pegar esse PID baseado na seguinte criação: vou pegar uma variável pid.
+
+[04:28] Depois que criei essa variável eu posso verificar se esse processo está vivo. Só que esse processo executou há bastante tempo, ele já rodou, então ele não está mais vivo. Esse processo já finalizou.
+
+[04:42] Com isso vemos que conseguimos nos comunicar com outros processos, conseguimos pegar informações de outros processos. Inclusive, existe todo um módulo para trabalharmos com esses processos.
+
+[04:53] Então conseguimos ter muito poder quando falamos de processos. Para finalizarmos esse vídeo e ele não ficar muito longo, se eu quiser pegar o PID do meu próprio processo eu posso utilizar a função self.
+
+[05:06] Por que eu pegaria o ID do meu próprio processo? De novo, Elixir não armazena estado, e já falamos sobre isso. Aquela questão de imutabilidade, de não conseguirmos alterar uma variável. Então armazenar estado pode ser difícil.
+
+[05:20] Se eu quiser ter um estado armazenado no meu próprio processo, uma forma para atingir isso através de uma espécie de gambiarra é gerar mensagens para o meu próprio processo e pegar essa mensagem depois.
+
+[05:31] Podemos ver como fazer isso no futuro talvez, mas por enquanto vamos focar na base de como nos comunicamos utilizando processos.
+
+[05:38] Então vamos ver como enviar e receber mensagens de processos no próximo vídeo.
+
+@@03
+Erlang vs SO
+PRÓXIMA ATIVIDADE
+
+Neste vídeo falamos um pouco sobre processos. Devs tendem a conhecer um pouco sobre o conceito de processos do sistema operacional.
+Qual a diferença de um processo do Sistema Operacional e um processo da Erlang (VM que executa o código Elixir)?
+
+Processos Erlang não são processos reais, sendo muito mais leves e baratos de se criar.
+ 
+Alternativa correta! A Erlang VM controla os seus "processos" de forma diferente, assumindo o controle de gestão, escalonamento, etc. Isso permite que ela faça um trabalho mais direcionado e otimizado, fazendo com que os "processos" Erlang sejam muito baratos de se criar. Existem aplicações que criam milhares de processos e isso não necessariamente é um problema.
+Alternativa correta
+São exatamente a mesma coisa.
+ 
+Alternativa correta
+Processos Erlang não são processos reais, sendo muito mais pesados e caros de se criar.
+
+@@04
+Comunicação
+
+[00:00] Vamos entender um pouco de como funciona comunicação entre processos. Se eu tenho comunicação utilizando mensagens, alguém tem que enviar uma mensagem e outra pessoa precisa receber essa mensagem.
+[00:17] Vamos criar um novo processo: Spawn(fn ->. E única coisa que esse processo fará é receber mensagem. Então vou usar uma macro chamada receive: Spawn(fn -> receive do.
+
+[00:35] Então dentro do código, entre do e end, poderemos processar o recebimento de mensagens. Vou dar um “Enter”. E dentro o que precisamos fazer?
+
+[00:44] Eu preciso utilizar o pattern matching para receber uma mensagem e executar alguma coisa. Não vou utilizar uma tupla nem nada do tipo, e qualquer mensagem, qualquer conteúdo que eu receber, então será uma variável qualquer, eu vou executar esse código.
+
+[01:03] Então que código eu vou executar? Eu vou só exibir essa mensagem, esse conteúdo: conteudo -> IO.puts(conteudo). Finalizei e vou mostrar o end desse receive. O receive está dentro de um bloco do e end.
+
+[01:19] Agora vou finalizar essa função, porque a única coisa que essa função faz é isso, receber uma mensagem. Então end e posso fechar os parênteses:
+
+[01:26] Isso tudo vai gerar um novo processo. Só que eu não peguei o Process ID desse processo. Então vamos fazer isso tudo de novo, só que armazenando o PID.
+
+[01:36] Eu posso apertar para cima e ver tudo que já foi executado. Então vou armazenar esse PID, vou fazer o match de qualquer variável, vou encerrar o meu receive, encerrar a minha função e fechar os parênteses. Agora sim o meu PID é o Process ID dessa função que eu criei.
+
+[01:56] Eu criei esse processo. No meu processo principal eu posso fazer o que eu quiser, por exemplo: IO.puts(“Estou no processo principal”).
+
+[02:05] Inclusive, podemos lidar com o processo principal. Vamos ver se o meu processo principal está vivo, está rodando ainda. Eu posso utilizar o self, que já vimos, obviamente ele está rodando, senão não estaríamos escrevendo código. Agora vamos ver se aquele outro processo que criamos está vivo também.
+
+[02:24] Nós vemos que ele está vivo sim. Esse processo está rodando ainda. E o que ele está fazendo então? Ele está esperando uma mensagem chegar.
+
+[02:32] Que mensagem, utilizando que padrão? Qualquer um. Qualquer mensagem que chegar ele vai executar.
+
+[02:38] Vimos que com o receive nós esperamos uma mensagem. E como enviamos uma mensagem? Utilizando a função send. Essa função espera dois parâmetros: um PID, ou seja, um Process ID, e uma mensagem que vamos enviar, qualquer variável.
+
+[02:53] Então eu vou enviar para o PID um texto: send(pid, “Texto para ser exibido no processo filho”). O que vai acontecer? Quando eu fizer esse send, uma mensagem será enviada para esse PID. Então a parte do receive será executada.
+
+[03:11] E o que ele espera? Ele espera qualquer conteúdo, e quando esse conteúdo chegar ele vai simplesmente exibir. Então veremos essa mensagem sendo exibida agora. Quando eu dou “Enter”, ele mostra para nós que o texto para ser exibido no processo filho foi exibido. E além disso, é isso que essa função send retorna. Ela retorna a mensagem que nós enviamos.
+
+[03:32] Então se eu tentar enviar de novo, repara que essa mensagem não foi mais exibida. E eu posso inclusive mandar qualquer coisa, como uma tupla com somente um “ok”, e isso será retornado, só que não está sendo mais exibido.
+
+[03:46] Por que isso está acontecendo? Se eu fizer Process.alive?(pid), aquele processo não está mais vivo. Ele executou o que tinha que executar e morreu, porque eu não falei para ele ficar esperando novas mensagens ou alguma coisa do tipo. Ele espera uma mensagem, e uma vez que chegou a mensagem, acabou.
+
+[04:02] Então repara que existem algumas particularidades que precisamos entender. Um processo fica travado quando eu utilizo o receive? Ele vai ficar parado para sempre? O que precisamos fazer para desbloquear? E se der um erro naquele meu processo? O meu processo principal vai receber alguma mensagem? Se eu envio uma mensagem e o processo não existe eu consigo receber essa informação?
+
+[04:23] Existem detalhes que podemos nos aprofundar no conceito de processo. Mas com o que temos, já começamos a entender como o Elixir por si só funciona.
+
+[04:33] Um supervisor tree faz Spawn de vários processos. Um processo que vai receber conexões HTTP; outro que vai lidar com a requisição, um controller, por exemplo; outro para se conectar ao banco de dados.
+
+[04:45] Então o supervisor tree, o nosso código que é a raiz da supervisão, gerencia processos. E um processo espera requisição. Então ele está em um looping infinito aguardando uma conexão. Chegou essa conexão, ele faz o send para um processo que processa requisições.
+
+[05:03] Se esse processo que faz o processamento de requisições não está de pé, repara que meu servidor web não está nem aí. Ele não vai morrer por causa disso.
+
+[05:13] Talvez o meu supervisor tree receba alguma notificação, ou não, mas então repara que dessa forma toda uma aplicação em Elixir é construída. Então o bloco de fundação de qualquer aplicação Elixir são processos.
+
+[05:26] Entendido isso, vamos dar uma olhada em algumas particularidades na hora de lidar com processos no próximo vídeo.
+
+@@05
+Detalhes
+
+[00:00] Vamos entender algumas particularidades de processos utilizando Elixir. Mas como eu disse, aquela base já é quase o suficiente para entendermos tudo que acontece.
+[00:11] Vou limpar o nosso terminal interativo. Eu vou enviar uma mensagem para mim mesmo, para o meu próprio processo, e vou enviar uma tupla: send(self(), {:ok, “Isso é uma mensagem de sucesso”}). Repara no que vai acontecer. Enviei, essa mensagem foi enviada, só que o meu processo continua rodando, IO.puts(“Meu processo está destravado”).
+
+[00:46] A função send não interrompe o nosso processo. O que ela faz é adicionar essa mensagem em uma mailed box, uma caixa de correio do processo destino, vamos chamar assim. Então se eu estou enviando uma mensagem para mim mesmo, eu estou adicionando na minha caixa de correio uma mensagem para que eu possa ler depois.
+
+[01:08] Agora, a macro receive bloqueia a execução do nosso código. Eu vou ter um receive e eu posso ter de novo o pattern matching. No nosso caso, como eu estou mandando uma mensagem de ok, eu vou fazer o match com o atom :ok e em seguida tenho o conteúdo. De novo, podemos ter pattern matching. E vou só exibir o conteúdo, que é a mensagem de sucesso.
+
+[01:33] Eu poderia ter outros critérios, outras mensagens que eu poderia receber. No nosso caso é só essa, então vou finalizar com nosso end. Então repara que ele exibe a nossa mensagem.
+
+[01:50] Mas se eu fizer um receive da mesma coisa e fizer um end, repara que ele não volta para mim, porque não tem nenhuma mensagem lá. Então ele está esperando algum processo enviar uma mensagem para nós.
+
+[02:03] Então se eu tentar digitar nada acontece. Vou dar um “Ctrl + C” e encerrar o meu IEX, porque eu travei o meu processo. O que será que podemos fazer para evitar o travamento? Vou abrir de novo e limpar a tela.
+
+[Aula2_video3_imagem1]
+
+[02:18] Vou fazer um receive sem ter nenhuma mensagem na minha caixa de correios. Vou tentar pegar qualquer coisa e fazer um qualquer_coisa -> IO.puts(qualquer_coisa) dessa qualquer coisa.
+
+[02:32] Só que eu não vou fazer o end. Eu vou dizer after, e então eu posso informar quanto tempo eu vou esperar em milissegundos antes de desistir. E caso passe esse tempo, o que vai acontecer? Então teremos um código que será executado.
+
+[02:49] Com isso eu posso, por exemplo, retornar uma mensagem, posso executar uma função ou alguma coisa do tipo. Eu vou colocar que depois de 1 segundo, ou seja, 1000 milissegundos, eu vou retornar Ok, mas eu vou exibir uma mensagem dizendo 1000 -> IO.puts(“Deu timeout”).
+
+[03:09] Agora vou fazer o end, ele vai esperar e depois de um segundo deu o timeout e ele retorna o que a expressão retorna, ou seja, o meu receive no final das contas retorna alguma coisa também. Ele vai retornar o que foi executado. No nosso caso, IO.puts retorna ok, então conseguimos pegar o retorno.
+
+[03:27] Então isso é uma primeira particularidade dos processos: conseguimos definir um timeout. Conseguimos monitorar processos através do Spawn Monitor, mas precisaríamos de um módulo e seria algo mais complexo, não vamos entrar nisso.
+
+[03:42] Mas o que eu quero mostrar para vocês é como processos funcionam por baixo dos panos. Só que isso tudo é basicamente uma abstração de mais baixo nível para acessar processos. Via de regra vamos lidar com processos em mais alto nível. O que isso quer dizer?
+
+[04:00] Nós vamos utilizar alguma coisa do Mix ou OTP. Por exemplo, vamos utilizar um Agent, um GenServer ou uma Task.
+
+[04:08] Vamos começar com a Task. Basicamente vamos utilizar uma Task quando precisamos executar alguma tarefa em plano de fundo, ou seja, de forma concorrente, paralela, e depois pegar seu resultado.
+
+[04:24] No guia de Task estamos vendo a partir de uma aplicação já criada, então não está tão didático. Podemos tentar acessar a documentação de Task para ver uma forma mais simples de uma tarefa.
+
+[04:37] Basicamente Task é uma tarefa assíncrona, que vai rodar de forma paralela. E eu sei que assíncrono e paralelo pode ser confuso. Eu vou deixar um Para Saber Mais para explicar a diferença entre assíncrono e paralelo.
+
+[04:54] Mas o que fazemos é basicamente muito parecido com o que fazemos com o Process, com o Spawn, quando criamos um processo. Só que agora temos uma abstração um pouco mais simples.
+
+[05:04] Nós realizamos alguma tarefa e conseguimos pegar o retorno disso. Então através de Task.async é como se estivéssemos fazendo o Spawn desse processo. E com await podemos pegar o retorno disso que aconteceu.
+
+[05:19] Então repara que não necessariamente vamos enviar mensagens para um processo ou outro, mas eu posso sim passar parâmetros e etc.
+
+[05:26] Outra forma de executar uma tarefa é através de ter um módulo. Utilizamos o nome do módulo, a função que queremos passar e alguns parâmetros. Isso também é possível. Repara que uma tarefa é uma forma de executar um processo, uma forma um pouco mais amigável, vamos dizer assim.
+
+[05:43] Agora, outras formas de executar processos, que até foram citadas aqui, são Agents e Generic Servers. Já falamos sobre supervisors, que são formas de executar processos, mas essas duas outras formas nós não vimos. Então vamos dar uma olhada pelo menos na definição.
+
+[06:02] Um Agent é basicamente uma abstração de um processo que te permite lidar com o estado. Ele é um processo que fica rodando, ele recebe uma mensagem e te devolve um estado.
+
+[06:18] Então você consegue trabalhar com o estado dessa forma, porque você manda uma mensagem e ele te devolve uma variável que já estava armazenada lá.
+
+[06:26] E você consegue pegar essa variável que estava num módulo, por exemplo, e ter um novo valor adicionado a essa variável. Então você cria uma nova variável, mas é como se estivesse armazenando o estado.
+
+[06:37] Se em algum momento você precisa armazenar estado em uma aplicação, Agent será a saída. Mas não vamos criar Agents.
+
+[06:44] Já um GenServer é uma forma de você enviar e receber mensagens, de ficar executando código de forma infinita, vamos dizer assim.
+
+[06:52] Por exemplo, podemos criar um servidor web como um servidor genérico. Ele fica esperando uma mensagem chegar, e quando uma mensagem chega ele executa determinada função. E isso sim vamos criar para ver como funciona.
+
+[07:08] Através do handle_cast podemos ter pattern matching. O que isso quer dizer? A função handle_cast será chamada sempre que esse processo receber alguma mensagem.
+
+[07:18] E através de pattern matching podemos ter várias funções handle_cast. E definimos qual função será executada e etc.
+
+[07:26] Então basicamente temos abstrações para lidar com processos. “Vinicius, você falou um monte de nomes, ficou tudo mais confuso ainda”. Fica tranquilo, porque a ideia é te mostrar que essas abstrações existem. Nós vamos utilizando-as conforme forem necessárias.
+
+[07:41] Por enquanto vamos focar na ideia base de processos. Processos podem ser criados, podemos enviar e receber mensagens, definir timeout, monitorar processos e etc. Em cima dessa base existem abstrações. E conforme a necessidade surgir, vamos utilizá-las.
+
+[07:58] Mas já estamos fazendo bastante coisa no nosso terminal interativo. Vamos voltar um pouco para o Mix e ver como podemos utilizá-lo da forma mais básica possível. No próximo capítulo conversaremos um pouco sobre tarefas do Mix.
+
+@@06
+Para saber mais: Async vs Paralelo
+PRÓXIMA ATIVIDADE
+
+Existe uma certa confusão entre os termos "Programação Assíncrona" e "Programação Paralela".
+No vídeo a seguir há uma explicação e exemplos de quando cada uma das técnicas é interessante. Isso pode ajudar a deixar os conceitos mais claros.
+
+https://youtu.be/zLfXPSeCkB8
+
+@@07
+Faça como eu fiz
+PRÓXIMA ATIVIDADE
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@08
+O que aprendemos?
+PRÓXIMA ATIVIDADE
+
+Nesta aula, aprendemos:
+Aprendemos a criar processos em Elixir;
+Vimos como processos se comunicam;
+Entendemos que processos são a base de uma aplicação em Elixir;
+Conhecemos detalhes sobre processos.
