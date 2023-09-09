@@ -278,7 +278,6 @@ Conhecemos o Mix.
 
 @@01
 Projeto da aula anterior
-PRÓXIMA ATIVIDADE
 
 Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
 
@@ -344,7 +343,6 @@ Spawn
 
 @@03
 Erlang vs SO
-PRÓXIMA ATIVIDADE
 
 Neste vídeo falamos um pouco sobre processos. Devs tendem a conhecer um pouco sobre o conceito de processos do sistema operacional.
 Qual a diferença de um processo do Sistema Operacional e um processo da Erlang (VM que executa o código Elixir)?
@@ -480,7 +478,6 @@ Detalhes
 
 @@06
 Para saber mais: Async vs Paralelo
-PRÓXIMA ATIVIDADE
 
 Existe uma certa confusão entre os termos "Programação Assíncrona" e "Programação Paralela".
 No vídeo a seguir há uma explicação e exemplos de quando cada uma das técnicas é interessante. Isso pode ajudar a deixar os conceitos mais claros.
@@ -489,7 +486,6 @@ https://youtu.be/zLfXPSeCkB8
 
 @@07
 Faça como eu fiz
-PRÓXIMA ATIVIDADE
 
 Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
 
@@ -497,10 +493,191 @@ Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao n
 
 @@08
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos:
 Aprendemos a criar processos em Elixir;
 Vimos como processos se comunicam;
 Entendemos que processos são a base de uma aplicação em Elixir;
 Conhecemos detalhes sobre processos.
+
+####
+
+@03-Mix Tasks
+
+@@01
+Criando um código
+
+[00:00] Bem-vindos de volta a mais um capítulo desse treinamento, onde estamos aprendendo um pouco sobre o ecossistema do Elixir e como uma aplicação é criada realmente, ao invés de executar somente códigos isolados. E falando nisso, vamos voltar para o nosso projeto Mix e escrever algum código que já saibamos escrever utilizando o próprio Elixir.
+[00:19] Eu vou criar dentro de “lib”, porque de novo, por convenção todo nosso código vai viver em “lib”. É nesse local que o Mix vai procurar nossos módulos. Vou criar um novo módulo, só que eu vou criá-lo dentro de uma nova pasta. Essa pasta já seria criada por padrão se tivéssemos utilizado aquele --sup, de Supervisor.
+
+[00:38] Como não utilizamos, eu vou criar uma pasta com o mesmo nome do nosso projeto, que é “elixir_teste”. Todo nosso código estará dentro dessa pasta. O módulo principal normalmente não será utilizado.
+
+[00:55] Eu vou ter um novo módulo chamado “escreve_numero_aleatorio.ex”. Repare que eu escrevi o nome do arquivo com underline, seguindo a convenção. Já o meu módulo será utilizado primeiro defmodule ElixirTeste, que é o nome do nosso módulo principal, seguido de .EscreveNumeroAleatorio.
+
+[01:20] E o que esse módulo vai fazer? Teremos uma função que escreve um número aleatório em algum arquivo que vamos criar.
+
+[01:27] Vou criar uma função def escreve, por exemplo, que poderá esperar o caminho de um arquivo, talvez. Mas por enquanto não vou esperar o caminho desse arquivo e vou escrever um arquivo já pré-determinado.
+
+[01:41] Onde esse arquivo estará? Agora entra outro detalhe. Quando estávamos trabalhando com arquivos avulsos, o arquivo que estávamos manipulando e o nosso código estavam no mesmo local.
+
+[01:52] Já em um projeto, é uma recomendação que mantenhamos nossos arquivos em um diretório chamado “priv”. Inclusive, conseguimos até acessar este diretório diretamente do código através de um detalhe.
+
+[02:06] Para fazer o caminho desse arquivo eu vou criar uma variável, e será a junção de caminho_arquivo = Path.join([:code.priv_dir].
+
+[02:18] O que isso está pegando? Através do nosso código, :code é algo que já existe no Erlang. A Virtual Machine do Erlang nos fornece isso, e dentro disso nós temos algumas funções.
+
+[02:34] Essa função priv_dir pega o diretório privado de alguma aplicação. E o nome da nossa aplicação é (:elixir_teste): Perfeito, pegamos o nosso código privado e vamos passar o nome do arquivo em si, que será ’arquivo.txt’ mesmo. Vou quebrar a linha para ficar um pouco melhor de ler. Então eu estou unindo tudo em um caminho só.
+
+[03:00] Então vai ser basicamente o caminho do diretório “priv”, barra o nosso “arquivo.txt”. Esse é o caminho do arquivo.
+
+[03:07] E eu quero escrever, então File.write!. Só que se alguma coisa der errado eu não quero saber, eu quero simplesmente interromper a aplicação, então com exclamação. Nesse caminho arquivo eu quero escrever algum conteúdo. Por exemplo: File.write!(caminho_arquivo, “Número: #{numero_aleatorio}”).
+
+[03:26] E como geramos um número aleatório? De novo, podemos utilizar um detalhe do próprio Erlang. Então através de rand temos um método chamado uniform.
+
+[03:36] Esse método vai gerar um número aleatório uniforme. Eu não vou entrar em detalhes do que é isso, e eu posso especificar um limite, por exemplo, que vai ser entre 1, que é o padrão, e 1000: :rand.uniform(1000).
+
+[03:47] Essa função vai gerar um número aleatório entre 1 e 1000, e eu vou armazenar isso na variável número aleatório: numero_aleatorio = :rand.uniform(1000).
+
+[03:54] Repara que já aprendemos algumas coisas, mesmo sem estarem diretamente relacionadas ao Mix. Estamos acessando algumas coisas que a Erlang fornece para nós, um pouco fora do próprio Elixir, mas claro, nada muito complexo.
+
+[04:06] Então eu consigo pegar detalhes do meu código através desse código :code; eu consigo pegar números aleatórios através do módulo :rand que o Erlang fornece para nós; e por último eu estou escrevendo num arquivo. Simples assim.
+
+[04:20] Repara que a função “escreve” sempre vai escrever no mesmo local, no mesmo arquivo, algum número aleatório. E talvez eu até tenha algum erro, não sei. Como podemos saber? Eu vou executar esse código utilizando o nos\so terminal interativo.
+
+[04:34] Só que tudo isso está dentro de um aplicação do Mix. Então vamos ver uma coisa interessante. No meu terminal eu posso fazer mix help, e a última coisa que ele mostra é como inicializar o IEX, ou seja, nosso terminal interativo, mas utilizando tudo que está nesse projeto. Então vamos fazer isso.
+
+[04:55] Com isso, teoricamente eu tenho acesso a esse “EscreveNumeroAleatorio”. Então vamos testar. Vou copiar e fazer ElixirTeste.EscreveNumeroAleatorio.escreve. E vamos ver se isso retorna algum erro. Ele retornou um ok, o arquivo foi criado e temos um número aleatório.
+
+[05:11] Se eu executar esse mesmo código de novo, agora o número que aparece é outro, 917. Escrevo de novo e o arquivo que vai aparecer é 224.
+
+[05:20] Então agora conseguimos criar um código que já estamos habituados, em Elixir, sem nenhum segredo, e executar dentro do nosso projeto, através do IEX.
+
+[05:29] Só que não é isso que eu quero. Eu quero fazer algo como mix escreve. Eu quero executar algo como isso.
+
+[05:41] Repara que essa tarefa não existe, obviamente. Então como será que eu posso criar uma tarefa do Mix? Veremos isso no próximo vídeo.
+
+@@02
+Gerando uma tarefa
+
+[00:00] Já vimos como podemos criar código, que já estamos habituados. Não tem nada especial para criar um módulo que execute uma regra de negócios do seu projeto, por exemplo. É código Elixir dentro de um projeto Mix.
+[00:14] Agora vamos criar uma tarefa do Mix. É aí que entra a diferença de um código normal para algo que precisaremos adequar ao projeto.
+
+[00:23] Eu vou criar um arquivo chamado “escreve.ex”. Eu vou definir um módulo com defmodule. E a primeira coisa é que o nome desse módulo importa. Eu vou definir como Mix.Tasks.Escreve. Vou realizar alguma tarefa, então acrescento do.
+
+[00:41] E em seguida vou definir uma função chamada run. Ela precisa receber um parâmetro, um argumento. Só que eu não vou utilizá-lo. Lembra como fazer para ignorar uma variável, algum valor de um patttern matching ou um parâmetro? Adicionando um underline: def run(_) do.
+
+[00:55] Esse código pode ser executado. Eu vou só exibir uma mensagem: IO.puts(“Executando código ‘escreve’”). E finalizei. Agora vamos voltar para o nosso Mix e tentar rodar mix escreve. Ele vai compilar nosso projeto e aparece o “Executando código ‘escreve’”, que foi exatamente o que nós definimos. Ou seja, esse código foi executado. Perfeito.
+
+[01:23] Será que se eu mudar o nome do meu arquivo vai funcionar? Porque repara que o nome do arquivo é o mesmo nome dessa tarefa. Vou renomear meu arquivo para “escrevi.ex”. Se eu executar a mesma tarefa ele de novo vai compilar nosso projeto e tudo continua funcionando.
+
+[01:40] Então será que se eu mudar para Mix.Tasks.Escrevi ele também vai continuar executando a mesma tarefa de forma mágica? Quando eu executo, ele não encontra essa tarefa, e inclusive pergunta se eu quis dizer a tarefa “escrevi”:
+
+[01:56] Vou renomear o arquivo novamente para “escreve.ex” e desfazer no código para Mix.Taks.Escreve.
+
+[02:02] O que o Mix faz quando eu tento executar uma tarefa? Ele vai tentar buscar em todos os nossos módulos em “lib” algum módulo chamado Mix.Tasks. seguido do comando que digitamos, só que em CamelCase. Então se eu digitasse, por exemplo, mix escreve_arquivo, ele tentaria buscar um módulo Mix.Tasks.EscreveArquivo.
+
+[02:24] Então basicamente para criarmos uma tarefa no Mix, algo que será executado diretamente pelo Mix, basta criarmos um módulo Mix.Tasks., seguido do nome da tarefa que queremos e implementar a função run. E poderíamos receber argumentos, mas eu não vou mostrar como fazer o parse desse argumento.
+
+[02:42] Agora vamos fazer com que esse código execute o que eu quero, que é escrever um número aleatório. Então eu vou fazer ElixirTeste.EscreveNumeroAleatorio.escreve. Simples assim.
+
+[02:57] Com isso, toda vez que eu executar o mix escreve, o nosso “arquivo.txt” será alterado. Agora apareceu 394.
+
+[03:05] Vamos executar de novo o mix escreve. Ao invés de 394 agora temos 77, e assim por diante. Vamos escrevendo números aleatórios nesse arquivo a cada vez que executamos essa tarefa.
+
+[03:17] Repara que conseguimos criar uma tarefa que executa um código padrão, uma regra que criamos, um código Elixir normal, sem segredo nenhum.
+
+[03:25] Agora, um último detalhe. Vou limpar a tela e executar um mix help. Vimos que todas as tarefas disponíveis em um projeto aparecem nessa lista. Será que a nossa tarefa “escreve” está nessa lista também? Vamos ver.
+
+[03:38] Ela não está. Como será que podemos fazer para informar o Mix que isso é uma tarefa e que ela precisa estar na nossa lista? Veremos como documentar a nossa tarefa no próximo vídeo.
+
+@@03
+Nome da tarefa
+
+Neste vídeo nós vimos como é fácil criar uma tarefa do Mix.
+O que define o nome da tarefa, ou seja, o comando que utilizaremos para executá-la?
+
+O nome da função.
+ 
+Alternativa correta
+O nome do seu módulo.
+ 
+Alternativa correta! Se um módulo Mix.Tasks.Teste for criado criado, ele será reconhecido como a tarefa mix teste (se tiver a função run/1 implementada).
+Alternativa correta
+O nome do arquivo onde o módulo está definido.
+
+@@04
+Documentando a tarefa
+
+[00:00] Como vimos, essa tarefa “escreve” não está disponível na lista para nós. Então como podemos informar para o Mix que temos essa tarefa?
+[00:13] Vamos utilizar o que é conhecido como documentação no código. Existe muito conceito de documentação diretamente no código quando falamos de Elixir, mas eu não vou entrar em muitos detalhes.
+
+[00:24] O que eu vou utilizar são alguns atributos para o meu módulo. Para quem está habituado a programação orientada a objetos, é como se fossem propriedades de uma classe. Como se meu módulo fosse uma classe e tivéssemos um atributo. Não vou dar nome para isso, mas é como se fosse a mesma coisa.
+
+[00:43] Então vou ter primeiro um @moduledoc. Isso é bastante comum até onde não temos tarefa do Mix. Inclusive, repare que o Visual Studio Code já até completou isso para mim. Ele colocou três aspas, que são uma sintaxe para termos uma String com várias linhas. Então essas linhas fazem parte da mesma String.
+
+[01:04] Então poderíamos adicionar uma documentação completa da tarefa, inclusive com exemplos. Por exemplo, quando eu executar no IEX alguma coisa como mix escreve, teremos uma saída de alguma coisa. Posso exemplificar só com mix escreve. Posso fazer algumas coisas assim, exemplificar como pode executar esse código.
+
+[01:30] Se eu salvar, entrar no terminal e fizer o mix help, isso ainda não vai aparecer. Só que existe uma alteração num código. Quando eu executo mix help ele não compila nossos arquivos.
+
+[01:42] Então vou executar o mix compile. É a primeira vez que executamos esse comando. E ele compilou um arquivo que foi modificado, e agora talvez na nossa documentação apareça.
+
+[01:54] Ainda não, não temos o “escreve”. Por quê? Nós temos dois tipos de documentação. Uma documentação será exibida nessa lista; e se eu fizer, por exemplo, mix help escreve, teremos uma documentação completa.
+
+[02:08] Repara que agora já temos a documentação completa da tarefa que escrevemos, inclusive com exemplo de código. Isso é exibido na lista, inclusive com o exemplo estando em outra cor. Então já conseguimos criar parte da documentação. Agora falta aquela documentação curta.
+
+[02:24] Então vamos adicionar uma @shortdoc, que é basicamente aquela linha de documentação. Então vai ficar @shortdoc “Escreve um número aleatório no arquivo.txt”. Basicamente é isso que faremos. Vou precisar compilar, claro.
+
+[02:43] E agora repara que ele está dizendo que eu defini esse atributo do módulo, mas nunca estou utilizando. Então vamos ver na ajuda se a nossa “escreve” aparece. Não aparece ainda.
+
+[02:57] Agora entra outro detalhe. Eu defini um atributo. Só que alguém precisa utilizar esse atributo. Esse @moduledoc já é utilizado pelo próprio Elixir, então perfeito, ele não avisa nada.
+
+[03:09] Só que esse @shortdoc é utilizado pelo Mix. Então precisamos adicionar código do Mix. E lembra como fazemos para adicionar um código no nosso próprio módulo? Já falamos sobre isso. É através da diretiva use.
+
+[03:24] Basicamente eu vou pegar um código que existe em algum lugar e inserir. E esse código será use Mix.Task. Basicamente eu estou pegando o código que define uma tarefa e adicionando no meu módulo.
+
+[03:36] Agora ele vai ler inclusive esse atributo @shortdoc, e ele vai poder até nos dar dicas a mais se fosse o caso. Não será esse o nosso caso.
+
+[03:43] Agora eu vou compilar. Aquele aviso não aparece mais para nós, porque o código use Mix.Task está utilizando o atributo @shortdoc. E ele inclusive vai utilizar esse atributo para exibir a nossa ajuda. Então agora temos o nosso mix escreve na lista, dizendo “Escreve um número aleatório no arquivo.txt”:
+
+[04:01] Dessa forma conseguimos definir uma tarefa no Mix, passamos a utilizar código do Mix e documentamos uma tarefa do Mix. Isso tudo são coisas diferentes. Vou minimizar o terminal para fazermos uma conclusão rápida desse módulo, porque eu me empolguei um pouco de utilizar o Mix agora.
+
+[04:18] Nós criamos um código normal, em Elixir, que escreveríamos no IEX, ou seja, executaríamos direto, que rodaria com o Elixir para compilar esse módulo de forma isolada; é um código comum. E passamos a utilizá-lo em um projeto do Mix, no IEX mesmo, utilizando -S mix. Perfeito, começamos bem.
+
+[04:37] Depois criamos uma tarefa do Mix, um código que o próprio Mix vai executar. E vimos um pouco sobre documentação de código. Lembra que eu falei que muito daquela documentação das dependências pode ser gerada através do código? Isso que eu fiz usando @moduledoc é uma das formas de gerar aquela documentação.
+
+[04:54] Não é a única, existem mais atributos que podemos utilizar, mas essa é uma forma. Então está aqui um início de uma bela jornada que você pode seguir até mesmo sem eu te mostrar. Você pode pesquisar mais de como documentar código, de como gerar mais tarefas, de como parsear argumentos. Esse é só o início para começarmos a trabalhar com Mix.
+
+[05:12] Agora vamos fugir um pouco desse assunto de tarefa e criar uma aplicação que talvez execute algum servidor, que algum código fique esperando alguma mensagem, alguma coisa desse tipo.
+
+[05:22] Vamos ver como criar realmente uma aplicação com Supervisor Tree utilizando Mix no próximo capítulo.
+
+@@05
+Para saber mais: Documentação
+
+Neste vídeo nós documentamos nossa tarefa, mesmo que não de forma completa ainda.
+Documentação é algo que faz parte diretamente do ecossistema Elixir. É extremamente incentivado que tenhamos boas documentações em nossos códigos para torná-los mais acessíveis a outras pessoas que os utilizarão. Tanto é que há uma parte sobre escrever documentação na própria documentação do Elixir. Você pode conferir aqui:
+
+Writing Documentation
+Se quiser entender um pouco melhor sobre as anotações utilizadas no código, esse guia pode te ajudar:
+
+Module attributes
+
+https://hexdocs.pm/elixir/writing-documentation.html
+
+https://elixir-lang.org/getting-started/module-attributes.html
+
+06
+Faça como eu fiz
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+
+@@07
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Vimos que podemos criar um código "comum" em projetos Mix;
+Aprendemos a criar uma tarefa do Mix;
+Aprendemos um pouco sobre documentação em Elixir.
