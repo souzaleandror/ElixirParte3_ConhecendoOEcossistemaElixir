@@ -1,5 +1,5 @@
 defmodule ElixirTeste.EscreveNumeroAleatorio do
-  def escrever do
+  def escreve do
     caminho_arquivo = Path.join(:code.priv_dir(:elixir_teste), "arquivo.txt")
 
     numero_aleatorio = :rand.uniform(1000)

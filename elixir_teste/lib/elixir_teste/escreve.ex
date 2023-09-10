@@ -9,6 +9,6 @@ defmodule Mix.Tasks.Escreve do
   @shortdoc "Escreve um numero aleatorio no arquivo.txt"
   def run(_) do
     IO.puts("Executando codigo 'escreve'")
-    ElixirTeste.EscreveNumeroAleatorio.escrever()
+    ElixirTeste.EscreveNumeroAleatorio.escreve()
   end
 end

@@ -673,7 +673,6 @@ Chegou a hora de você seguir todos os passos realizados por mim durante esta au
 
 Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
 
-
 @@07
 O que aprendemos?
 
@@ -681,3 +680,343 @@ Nesta aula, aprendemos:
 Vimos que podemos criar um código "comum" em projetos Mix;
 Aprendemos a criar uma tarefa do Mix;
 Aprendemos um pouco sobre documentação em Elixir.
+
+#### 10/09/2023
+
+@04-Aplicação
+
+@@01
+Projeto da aula anterior
+PRÓXIMA ATIVIDADE
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://github.com/alura-cursos/2323-elixir-3/archive/refs/tags/aula-3.zip
+
+@@02
+Instalando uma dependência
+
+[00:00] Bem-vindos de volta a mais um capítulo desse treinamento, onde finalmente vamos criar uma aplicação utilizando Elixir. Eu quero te contar o que nós vamos criar. Eu quero criar uma aplicação que fique rodando e de minuto em minuto ela escreva um novo número aleatório naquele arquivo.
+[00:16] Ou seja, eu vou criar uma aplicação onde temos alguma coisa que fica de minuto em minuto enviando uma mensagem para um outro processo, que de minuto em minuto recebe essa mensagem. Só que ele pode receber essa mensagem a qualquer momento.
+
+[00:30] Então o que precisaremos fazer? Temos um processo que agenda tarefas, e temos outro processo que recebe alguma mensagem, e quando recebe essa mensagem escreve no arquivo. Repara que teremos um projeto super simples, mas vai dar para dar uma boa visão de como funcionam processos, GenServers, Supervisor e etc. Só que antes de ver sobre Supervisor, sobre um servidor, vamos entender como funciona para utilizarmos uma dependência.
+
+[00:58] Eu falei que eu quero ter um processo que de minuto em minuto mande uma mensagem, ou execute algum código. Eu não vou criar um loop ou uma recursão que espera um minuto e depois executa algum código. Eu vou utilizar um pacote que já fez isso para mim, um pacote que eu possa utilizar e simplesmente agende tarefas.
+
+[01:18] Para quem conhece o mundo de administração de servidores pode se lembrar do cron, que é uma ferramenta que agenda tarefas. Então será que tem alguma coisa direto no Elixir que se assemelha ao cron? Vou pesquisar por cron no hex.pm, que é o local onde pesquisamos bibliotecas.
+
+[01:39] O primeiro pacote que é exibido está dizendo que ele é feito para parsear e formatar Strings no formato cron. Não é isso que eu quero. Eu não quero calcular quando algo vai ser executado, eu quero executar, quero um agendador de tarefas.
+
+[01:53] Então esse Quantum parece ser exatamente isso. E repara que ele tem quase 300 mil downloads recentes. Isso é ótimo, parece ser uma biblioteca bastante utilizada. Vou clicar sobre o quantum.
+
+[02:05] E como será que utilizamos isso? Como primeiro buscamos isso para o nosso pacote? Eu vou na parte direita da tela e vou copiar a primeira opção, porque eu sei que eu tenho esse arquivo “mix.exs”.
+
+[02:15] Se eu tivesse algum outro tipo de projeto com um arquivo “rebar.config”, eu copiaria o de baixo. Se eu estivesse utilizando o Erlang com make eu utilizaria outro.
+
+[02:23] Enfim, eu estou utilizando o Mix, então vou copiar a parte correspondente ao “mix.exs”. E onde eu instalo ou adiciono isso? Vamos para o nosso projeto, porque repara que nessa página não tem nada informando como instalar. Logo veremos sobre documentação.
+
+[02:36] Mas voltando para o nosso projeto, no nosso “mix.exs” eu posso adicionar essa dependência. Então vou tirar o comentário e adicionar a dependência.
+
+[02:48] Repara que eu estou informando somente a versão que eu vou utilizar desse pacote chamado quantum. Eu não estou dizendo de onde ele vai buscar. Então ele vai buscar naquele hex.pm.
+
+[02:58] Se eu quisesse buscar de algum repositório específico, eu poderia utilizar esse formato, nós não vamos utilizar isso nesse treinamento, então vou apagar essa parte.
+
+[03:07] Agora, nesse momento eu defini uma dependência. Significa que eu já posso utilizar essa dependência? Ainda não. Inclusive, ele diz que se eu quiser aprender mais eu devo executar o comando mix help deps.
+
+[03:18] Só que eu já sei o que eu quero fazer. Eu quero realizar mix deps.get. Eu quero buscar todas as dependências que foram definidas. Quando eu executo esse comando ele vai ler a função dependências e vai buscar o nosso projeto que é necessário.
+
+[03:33] E repara que esse projeto quantum precisa de alguns outros. Ele precisa do “gen_state” e daquele “crontab” que vimos anteriormente, porque ele vai parsear aquela String que vamos informar para ele no formato cron e depois executar alguma coisa.
+
+[03:46] Então o quantum é um projeto que possui dependências. E essas dependências já foram buscadas para nós. Então está tudo já adicionado no nosso projeto.
+
+[03:56] Teoricamente eu já tenho uma dependência pronta para utilizarmos. Mas como utilizamos essa dependência? Vamos entrar na documentação. Primeiro ele mostra como adicionar na sua lista de dependências, e já fizemos isso.
+
+[04:13] Agora temos que criar um scheduler para o nosso aplicativo, para nossa aplicação. Então vamos criar um agendador. Vou entrar em “lib > elixir_teste” e criar um arquivo chamado “agendador.ex”.
+
+[04:29] Vou definir um módulo com defmodule. Esse módulo será o nome do nosso projeto com o nome que estamos criando agora, então ElixirTeste.Agendador.
+
+[04:40] O que esse agendador fará? Ele vai utilizar o quantum. Isso quer dizer que ele vai pegar todo o código que está nesse módulo quantum e adicionar no nosso módulo, informado como parâmetro qual é a aplicação. Então vamos adicionar o nome da nossa aplicação. Ao invés de :your_app vamos adicionar o nome da nossa aplicação: use Quantum, otp_app: elixir_teste.
+
+[05:02] Esse otp é Open Telecomunication Platform. É basicamente uma plataforma aberta de telecomunicação. É algo que o Erlang fornece para nós. Então no final das contas vamos gerar uma aplicação do Erlang.
+
+[05:17] Mas não precisa se atentar a esses detalhes. Basicamente o que estamos informando é o nome da nossa aplicação.
+
+[05:23] Continuando na documentação, em seguida ele está informando que eu vou adicionar no Supervision Tree esse nosso scheduler. Mas aí complicou. Lembra que executamos o mix new sem o --sup? Então nós não temos esse nosso Supervision Tree. Nós não temos uma aplicação ainda criada.
+
+[05:43] É exatamente isso que precisamos fazer: precisamos criar uma aplicação para então adicionar esse nosso agendador nos filhos do Supervision Tree.
+
+[05:52] Então agora as coisas começam a complicar. Nós faremos exatamente isso: criaremos uma aplicação no próximo vídeo.
+
+@@03
+Termo OTP
+PRÓXIMA ATIVIDADE
+
+Vimos neste vídeo o termo "OTP" que foi utilizado para criar o módulo agendador do nosso projeto.
+O que significa a sigla "OTP" neste contexto?
+
+One True Pairing
+ 
+Alternativa correta
+Open Telecom Platform
+ 
+Alternativa correta! OTP é um conjunto de bibliotecas que são disponibilizadas com Erlang. O conceito de Supervision tree vem desta plataforma, por exemplo.
+Alternativa correta
+One Time Password
+
+@@04
+Criando uma aplicação
+
+[00:00] Dando uma olhada na documentação do Quantum, que é uma biblioteca externa, temos a primeira visualização do que é uma aplicação do Mix. Precisamos criar exatamente isso: uma aplicação, que ainda não temos.
+[00:16] Inclusive, vamos abrir o nosso código e entrar em “mix.exs”. Repara que na parte de application tudo que eu tenho é aplicações extra, ou seja, eu não estou informando qual é a nossa aplicação. E fica uma dica: se você quiser, pausa esse vídeo e dá uma olhada no comando mix help compile.app.
+
+[00:37] Isso vai mostrar um monte de coisa sobre aplicações Elixir. Vale a pena dar uma lida. Eu não vou fazer isso, porque você pode fazer por você mesmo. Mas basicamente esse comando vai mostrar todos os parâmetros em application que podemos ter.
+
+[00:52] Continuando, nós temos extra applications, e precisamos informar alguma coisa que seja uma aplicação real. Como será que fazemos isso?
+
+[01:01] Primeiro vamos criar nossa aplicação. Vou criar um novo arquivo chamado “aplicacao.ex”. E vamos pegar como exemplo o que temos na documentação. Eu vou definir um módulo, com o nome que eu quiser, e ele vai utilizar application, e esse código que vai ser inserido chama o start. Então vamos copiar isso e fazer as modificações que precisar.
+
+[01:25] Vou colar no “aplicacao.ex” e ao invés de Acme.Application vou mudar para Acme.Aplicacao, porque é como eu estou chamando esse arquivo. Vou acertar a indentação. Estou utilizando a aplicação, ou seja, estou inserindo nesse módulo todo código em aplicação.
+
+[01:42] Esse código em aplicação chama uma função chamada start. Em seguida temos o tipo da aplicação e os argumentos que essa aplicação pode receber.
+
+[01:52] Não vamos utilizar nenhum argumento nem nada do tipo, e o tipo de aplicação não importa para nós, por isso tudo começa com underline. Em seguida temos os filhos desse Supervisor Tree. Inclusive, não é Acme.Aplicacao, e sim ElixirTeste.Aplicacao, que é o nome do nosso projeto.
+
+[02:13] E ao invés de Acme.Scheduler, vou trocar para ElixirTeste.Agendador. Esse é o nome do primeiro processo que esse supervisor vai cuidar.
+
+[02:25] Então repara que eu estou adicionando filhos de um supervisor. Eu posso utilizar vários, e eles serão utilizados quando eu inicializar um supervisor. Então repara que eu estou inicializando um novo processo através do módulo Supervisor.
+
+[02:48] Eu estou informando a estratégia de supervisão que vamos utilizar nesse Supervisor. Basicamente a estratégia é quando um processo morrer, outro processo será criado, e somente um.
+
+[02:59] Então vou manter a estratégia :one_for_one porque parece fazer sentido para mim.
+
+[03:02] E eu posso criar um nome para esse supervisor. Vou chamá-lo de ElixirTeste.Supervisor, que é um nome que veremos mais para frente onde ele pode aparecer. Basicamente isso é como definimos uma aplicação. Parece fazer sentido.
+
+[03:18] Agora, como o Mix sabe que esse módulo é o que contém a nossa aplicação? Vamos informar isso para ele no “mix.exs”. Na parte de application, além de aplicações extras eu vou informar qual é o módulo que vamos utilizar: mod: {ElixirTeste.Aplicacao, []}. E eu posso ter parâmetros que vou informar. Nesse caso não preciso informar parâmetro nenhum.
+
+[03:43] E como eu sei que é esse parâmetro que precisamos passar, que é uma tupla e etc? Vamos dar uma olhada rapidamente no comando mix help compile.app.
+
+[03:53] Quando eu executo esse código ele mostra que um módulo pode ser usado dessa forma, mas ele também explica o que é esse parâmetro módulo.
+
+[04:01] Ele específica qual é o módulo que será invocado quando a aplicação for inicializada. E ele precisa estar no formato de uma tupla, onde informamos o módulo e os argumentos. E normalmente esses argumentos são uma lista vazia. A partir daqui eu sei o que fazer.
+
+[04:17] Temos a definição de uma aplicação. Essa aplicação já pode inicializar alguma coisa, só que ainda faltam algumas coisas, principalmente relacionadas a agendar essa tarefa. Nós só criamos a nossa aplicação, mas essa tarefa ainda precisa ser agendada, porque temos na documentação a parte “Usage” do nosso Quantum.
+
+[04:37] Ou seja, nós não estamos utilizando o Quantum. Nós só criamos uma aplicação para conseguir definir o nosso agendador. No próximo vídeo voltamos para efetivamente agendar uma tarefa para ser executada.
+
+@@05
+Papel da aplicação
+PRÓXIMA ATIVIDADE
+
+Neste vídeo nós finalmente começamos a criar uma aplicação real usando Elixir. Nós definimos o módulo principal de nossa aplicação.
+Qual o papel do módulo principal de uma aplicação Mix?
+
+Executar o código principal do nosso domínio.
+ 
+Alternativa errada! Não é neste ponto que escrevemos código de domínio
+Alternativa correta
+Definir as dependências e configurações do projeto.
+ 
+Alternativa correta
+Inicializar a Supervision Tree.
+ 
+Alternativa correta! O módulo inicial de uma aplicação inicializa a supervision tree dela, ou seja, cria um processo que vai supervisionar os demais processos desta aplicação. Existe um outro tipo de aplicação que usa o conceito de Umbrella, mas isso não será abordado neste treinamento.
+
+@@06
+Agendado uma tarefa
+
+[00:00] Vamos entender rapidamente o que fizemos no último vídeo. Nós criamos um novo módulo, que está definindo uma função e não estamos chamando essa função em nenhum momento. Mas vamos ver o que essa função faz. Ela define um array de children, onde temos um agendador, o outro módulo que criamos. E temos também uma keyword list de opções. Temos uma estratégia e um nome.
+[00:26] Só que essas duas variáveis estão sendo passadas para uma função do módulo Supervisor. Então a linha Supervisor.start_link(children, opts) está inicializando um Supervisor Tree, está criando um novo Supervisor. Basicamente é isso que está acontecendo.
+
+[00:40] Então o que esse supervisor faz? Ele pega tudo que está em children e inicializa como um processo, utilizando essas opções que passamos. Uma dessas opções é a estratégia desse supervisor. O que queremos dizer com estratégia? Sempre que tivermos um processo que morreu, ele vai criar só um outro, então é one_for_one. Se um processo morreu, crio outro.
+
+[01:04] E estamos dando um nome para esse supervisor. Já veremos o motivo para isso. E com isso criamos nosso Supervisor.
+
+[01:10] Mas de novo, nós não chamamos a função start em nenhum momento. Quem chama é alguma função do módulo Application. E onde executamos essa função do módulo Application? Em “mix.exs”.
+
+[01:23] Quando colocamos nossa aplicação para rodar utilizando Mix ele virá nessa função Application, ver o que tem em módulo, ou seja, ele pega esse módulo e sabe que vai executar a função desse módulo. Repara que as coisas começam a se juntar.
+
+[01:38] Outro detalhe é: o nosso supervisor inicializa um processo de agendador. Só que qual função ele chama de agendador? Como ele sabe enviar mensagens ou receber mensagens desse agendador?
+
+[01:50] Esse agendador está definido como um servidor. Só que não precisamos fazer essa configuração. Não precisamos nem saber que isso foi feito, porque tudo foi feito pelo Quantum.
+
+[02:00] Então essa é a vantagem de utilizar uma biblioteca externa. Ele nos poupou de entender alguns detalhes antes da hora. Isso é bem interessante.
+
+[02:07] Agora que isso tudo está claro, temos nosso agendador pronto para ser utilizado, mas ainda não estamos utilizando ele. O que está faltando é configurar os nossos Jobs, as nossas execuções, o nosso cron propriamente dito.
+
+[02:20] Então vamos olhar na documentação como podemos fazer isso. Nós vimos a parte de Setup, então listamos nas dependências, criamos um scheduler, adicionamos na Supervision Tree. Foi isso que fizemos no vídeo passado.
+
+[02:34] Agora temos a parte de resolução de problemas, ou Troubleshooting. Mas nós ainda nem executamos para ter algum problema.
+
+[02:40] Então vamos para a parte de Usage. Para chegarmos nesse Usage temos que fazer algumas coisas.
+
+[02:46] Primeiro devemos ter um arquivo de configuração e adicionar isso tudo nesse arquivo. Nós não temos esse arquivo de configuração ainda. Para que ele serve? Algumas dependências, algumas bibliotecas ou nosso próprio código podem utilizar configurações que são definidas por padrão nesse arquivo.
+
+[03:06] E para que isso é útil? Para mudarmos alguns detalhes e não precisarmos recompilar nossa aplicação inteira. Então isso é bem interessante. Vamos criar esse arquivo, chamado “config.exs”, na pasta config.
+
+[03:23] Então temos a função config, que espera como parâmetro o nome do nosso projeto, o módulo que estamos configurando, que é o config :elixir_teste, ElixirTeste.Agendador, e em seguida as configurações que vamos passar.
+
+[03:40] No nosso caso vai ser os Jobs, que vai ser um array. Repare que na documentação é isso que ele passa. Ele passa uma função, o primeiro parâmetro é um átomo com o nome do nosso projeto; o segundo parâmetro é o módulo que estamos configurando; e o terceiro é a configuração em si, uma keyword list.
+
+[03:57] O que o nosso agendador espera de configuração? Os Jobs. Então definimos os Jobs, que serão um array. Só que repare que isso é uma função config. Quem vai chamar essa função config? De novo precisamos inserir código, através do use.
+
+[04:15] Então vamos fazer use Mix.Config. Teoricamente é só isso que precisamos para executar essa função config. Agora vamos configurar realmente os nossos Jobs. Cada um dos Jobs precisa ser uma tupla, com a String do nosso cron e o que vai ser executado.
+
+[04:37] Se você não estiver habituado com o formato da String cron, não tem problema. Eu vou deixar até um Para Saber Mais mostrando um site em que você altera uma configuração e ele mostra quando aquilo vai ser executado. Mas basicamente se temos tudo com asterisco isso será executado de minuto em minuto.
+
+[04:54] E agora vamos criar uma função que faz alguma coisa. E por enquanto esse alguma coisa vai ser só exibir uma mensagem, como por exemplo, “Executando tarefa agendada”.
+
+[05:04] Teoricamente é só isso que precisamos para ter as configurações realizadas. Então vamos executar o mix help para primeiro ver se esse arquivo não está com nenhum erro. Como ele exibiu ajuda eu sei que ele não está com erro. E ele mostra o mix run, que inicializa e roda a aplicação atual.
+
+[05:24] Então vamos tentar rodar o mix run. Ele vai rodar, está compilando os arquivos, ele pegou o crontab, está fazendo tudo que tem que fazer, adicionou tarefa e encerrou a aplicação. Porque não tem nenhum serviço nem nenhum processo rodando, nenhum processo acontecendo.
+
+[05:43] Então ele simplesmente encerra. Ele não deixa a aplicação rodando, porque não tem mais nenhum processo vivo. Só vai ter algum processo executando algo daqui a um minuto, que foi quando agendamos.
+
+[05:52] Então podemos fazer algumas coisas, por exemplo, mix run --no-halt. Ele vai fazer exatamente a mesma coisa que aquele mix run, ele vai pegar aquele mix.exs, vai compilar todos os arquivos, vai gerar uma aplicação do Erlang com todas as configurações que fizemos na aplicação, vai rodar aquele nosso módulo principal.
+
+[06:17] Aquele módulo principal inicializa aquela nossa Supervision Tree. E a partir disso temos aquele nosso cron que daqui a um minuto vai inicializar uma tarefa. Então isso vai levar mais um tempo. Daqui a alguns segundos eu volto para ver se aquela mensagem foi exibida.
+
+[06:33] E agora repara que ele mostrou executando a tarefa agendada. Depois de algum tempo, às 14:19 ele executou essa tarefa. Então perfeito, o nosso cron está funcionando.
+
+[06:43] Antes de continuar eu vou encerrar essa aplicação e mostrar outra coisa. Eu vou inicializar dentro do IES, e repara que ele começou a nossa aplicação. E eu posso executar código, utilizar algum módulo que definimos no nosso código, eu posso fazer tudo que eu faria normalmente dentro de um projeto.
+
+[07:02] Só que eu vou dar um código um pouco peculiar, vamos dizer assim: :observer.start. Repara que ele começa com dois pontos, então eu sei que isso vem do Erlang.
+
+[07:11] Quando eu executo isso ele abre uma tela, que basicamente é um monitor do sistema, só que da nossa Virtual Machine, do nosso Erlang. E na aba “Applications” podemos ver tudo que está rodando, inclusive a nossa aplicação elixir_teste.
+
+[07:32] Repara que existe o supervisor do próprio Erlang, que criou para nossa aplicação, e ele está vendo o nome que definimos, que é “ElixirTeste.Supervisor”, e é o que aparece agora. Vou mostrar de novo: em “aplicacao.ex”, definimos esse nome ElixirTeste.Supervisor.
+
+[07:51] E dentro dele ele está chamando o processo Agendador. Então como esse agendador utiliza o Quantum, repara na quantidade de coisa que ele está executando e monitorando. E esse tanto de coisa está sendo monitorado pelo agendador.
+
+[08:15] Não sei se você consegue ver, mas na parte de baixo tem o PID, que está 216. Eu vou encerrar o “ExecutionBroadcaster”. Repara que depois de um tempo ele dá uma atualizada. Eu clico de novo e o PID mudou. Agora é 279, porque esse processo morreu, só que como o agendador também é um supervisor, ele já inicializa um novo. Então por isso que o Elixir é tão potente. Ele tem várias ferramentas para cuidar disso.
+
+[08:43] Agora, para finalizar esse capítulo com chave de ouro eu quero criar um novo processo que recebe mensagens desse agendador. Que mensagem ele vai receber? A mensagem para escrever um número aleatório naquele arquivo. Só que isso tudo vamos fazer no próximo vídeo.
+
+@@07
+Para saber mais: Observer
+PRÓXIMA ATIVIDADE
+
+Neste vídeo nós utilizamos o comando :observer.start para analisar detalhes de nossa aplicação, mais especificamente, quais os processos rodando.
+O observer faz parte da Erlang e por isso o acessamos através de um Atom já criado, prontinho para nós.
+
+Se quiser saber mais detalhes sobre o Observer ou sobre depuração no geral, você pode conferir esta seção do guia:
+
+Debugging
+Se você não estiver familiarizado(a) com o conceito de depuração (debug), pode conferir este vídeo:
+
+https://elixir-lang.org/getting-started/debugging.html
+
+https://youtu.be/CDwdjspV4wc
+
+@@08
+GenServer
+
+[00:00] Já temos praticamente tudo que precisamos para que esse nosso agendador mande uma mensagem para algum outro processo e esse processo escreva um número aleatório naquele nosso arquivo.
+[00:11] Então só falta esse outro processo, que vai receber uma mensagem de alguma forma, e essa mensagem ele vai utilizar para depois escrever um número aleatório naquele arquivo.
+
+[00:22] Já que faremos isso nós precisamos de alguma abstração, de um processo. Precisamos criar um processo que recebe as mensagens e chama esse nosso “escreve_numero_aleatorio”.
+
+[00:35] Eu vou criar então uma abstração de um processo que já falamos. Nós falamos sobre Tasks, Agents e GenServers, ou seja, um servidor, que fica ouvindo mensagens. Vamos criar exatamente isso.
+
+[00:46] Vou criar um arquivo chamado “servidor_aleatorio”. Você obviamente pode dar um nome melhor do que isso, mas é esse que eu vou criar. Então vou criar nosso módulo: defmodule ElixirTeste.ServidorAleatorio do.
+
+[00:59] Como eu disse, isso será um servidor. Assim como o que é uma aplicação está utilizando o que é uma aplicação; o que é uma configuração usa mix config; o que é uma Task usa o mix task; então estamos utilizando módulos que já existem para definir esse tipo de abstração.
+
+[01:20] Então para definir isso é um GenServer eu vou usar um módulo GenServer: use GenServer. E o que isso faz na prática? Isso pega todo o código que está no módulo de GenServer e adiciona aqui. Simplificando é isso. Esse módulo GenServer vai chamar uma função chamada start_link: def start_link(_) do.
+
+[01:40] O que é essa função? Vou abrir de novo a nossa aplicação. É o que inicializa um processo. Como o nosso supervisor tem o start_ link, o nosso GenServer também tem. E o que faremos é exatamente isso: chamaremos o start_link do GenServer, que espera três parâmetros: GenServer.start_link().
+
+[01:56] O primeiro parâmetro é um módulo que vai inicializar o servidor em si. Então vamos pegar esse nódulo atual de ServidorAleatorio: GenServer.start_link(ElixirTeste.ServidorAleatorio, ).
+
+[02:04] Depois podemos passar uma mensagem inicial ou algo que será passado para uma inicialização desse servidor. Vamos passar só um :ok.
+
+[02:11] E agora podemos passar algumas configurações, por exemplo, o nome desse servidor. Isso é uma keyword list e vamos passar como parâmetro o servidor aleatório: GenServer.start_link(ElixirTeste.ServidorAleatorio, :ok, name: :servidor_aleatorio).
+
+[02:23] Então esse é o nome do nosso servidor. Em todo lugar que precisemos fazer alguma coisa com ele nós podemos utilizar esse nome.
+
+[02:29] Agora só para simplificar um pouco, quando precisamos referenciar o próprio módulo dentro do módulo podemos utilizar o seguinte: __MODULE__.
+
+[02:41] Inicializei meu servidor, e de novo, o segundo valor, o :ok, pode ser passado para uma função de inicialização.
+
+[02:47] Então eu posso ter uma função init que recebe algum parâmetro. Nesse caso eu vou fazer o Pattern Matching com o ok: def init(:ok) do. Então essa função só será chamada com esse ok.
+
+[02:57] Não precisaremos fazer nada, mas basicamente eu posso informar que a inicialização foi ok, deu tudo certo, então eu retorno o ok. E eu posso informar o estado inicial desse servidor. O que isso quer dizer?
+
+[03:08] Um servidor pode armazenar estado por algum motivo. Se eu quiser ter um servidor que tem um contador, por exemplo, eu posso iniciar esse contador com 0, ou então ter um mapa dizendo que o número é 0. Mas no meu caso eu não vou ter nada, eu não vou armazenar estado, então vou ter um mapa vazio:
+
+[03:26] Continuando, eu posso ter respostas para mensagens. Existem várias mensagens que podem chegar. Então como eu reajo a alguma mensagem depende do caso.
+
+[03:36] Se for uma mensagem de informação eu tenho uma função chamada handle_info, quando o processo está inicializando, quando o processo vai morrer e etc. Basicamente tudo chega aqui.
+
+[03:46] Agora, eu tenho uma função que é executada quando chega uma mensagem síncrona. O que isso quer dizer? Chega uma mensagem e eu preciso devolver algo na hora. Ou seja, o outro processo vai meio que me esperar.
+
+[03:59] E temos algo que é assíncrono, em que na verdade um processo vai mandar mensagem e não precisa esperar a resposta. Então é isso que vamos criar.
+
+[04:07] E essa função recebe um parâmetro, que vai ser a mensagem enviada, pode ser qualquer coisa, e depois algumas opções, com as quais não vamos nos importar.
+
+[04:17] Só que de novo, esse servidor pode receber várias mensagens. Então como eu vou saber que eu só quero executar essa função quando a mensagem for para escrever algo? Então vou passar a receber uma mensagem que será o átomo escreve. Então basicamente quando alguém enviar uma mensagem e o valor for escreve eu executo essa função.
+
+[04:35] Se eu quisesse ter outra, por exemplo, quando eu inicializo, quando eu escuto algo, eu poderia ter algo assim. Então só terei uma função para receber a mensagem escreve. Ou seja, estou utilizando Pattern Matching.
+
+[04:47] Então sempre que alguém mandar uma mensagem para esse processo com a mensagem escreve, eu vou fazer ElixirTeste.EscreveNumeroAleatorio.escreve. Eu vou escrever o número aleatório naquele arquivo.
+
+[05:00] Só tem um último detalhe dessa função, ela precisa informar se ela quer responder essa mensagem, ou seja, se ela quer enviar uma mensagem de volta, e qual é o estado da aplicação, qual o estado do servidor depois dessa execução.
+
+[05:14] Lembra que inicialmente nosso estado era vazio? Ele vai se manter vazio, eu não estou fazendo nada com ele, eu não estou utilizando estado.
+
+[05:21] Então eu vou dizer que não quero responder nada e que o estado é vazio: {:noreply, %{}}. Se eu quisesse responder, esse novo estado poderia ser retornado para quem chama essa mensagem. Nós não faremos isso nesse treinamento.
+
+[05:30] Continuando, eu tenho teoricamente um servidor pronto já para ser utilizado. Como eu mando mensagem para esse servidor? Eu preciso de algum módulo que se comunique, que saiba mandar mensagens para processos. E é justamente o GenServer.
+
+[05:45] Então na nossa configuração, ou seja, no nosso cron job eu vou utilizar o GenServer para fazer um cast. Ou seja, ele envia uma mensagem e não espera a resposta. E para qual servidor ele vai mandar? Para aquele servidor aleatório. Vou até copiar o nome para garantir que eu não estou escrevendo errado. Isso é uma coisa chata que podemos pensar em como resolver daqui a pouco.
+
+[06:07] E que mensagem eu quero enviar? Eu poderia mandar qualquer valor, uma tupla, uma lista, um mapa, mas eu vou enviar o escreve, porque é isso que a função handle_cast está esperando através do Pattern Matching.
+
+[06:19] Com isso, de minuto em minuto esse servidor aleatório vai receber a mensagem escreve. Então teoricamente eu já tenho tudo pronto para executar minha aplicação.
+
+[06:28] Só falta um detalhe, mas vamos executar para você ver qual é esse detalhe. Vamos executar dentro do IEX, porque eu quero inicializar o meu :observer.start.
+
+[06:44] Inicializado, vamos entrar na aba de aplicações. Quando eu clico em “elixit_teste”, repara que eu só tenho o processo do meu agendador. O processo do servidor aleatório não foi inicializado.
+
+[06:54] Então vou abortar a execução. Repara que aquele observer já fechou também. Qual é o detalhe que está faltando? Na minha aplicação eu estou inicializando o processo do agendador, mas eu não inicializei esse servidor aleatório. Então vamos inicializá-lo: ElixirTeste.ServidorAleatorio.
+
+[07:17] Teoricamente isso agora é tudo que eu preciso para ter os dois processos e para que eles se comuniquem. Então de novo vou inicializar o IEX. Está rodando. Teoricamente às 03:43 esse “arquivo.txt” precisa ser alterado.
+
+[07:30] Então vamos exibir :observer.start. E vamos ver se todas as aplicações foram carregadas. A aplicação apareceu e o meu servidor chamado servidor aleatório está carregado também.
+
+[07:45] Inclusive, eu posso matar esse servidor que o meu Supervisor vai subir ele de novo. Eu só vou esperar mais um pouco para bater as 03:43 e aquele arquivo ser escrito.
+
+[07:55] Depois que ele for escrito eu vou matá-lo para mostrar que o PID vai mudar, só que o processo vai continuar existindo, porque temos um supervisor cuidando dele.
+
+[08:06] O processo aconteceu, então agora vamos no arquivo. E repare que ele foi modificado e exibiu a mensagem, e agora o número é 16. De novo, eu tenho dois processos embaixo do meu Supervisor. Se eu matar o meu servidor aleatório, ele não morre. O PID era 223, e quando eu volto depois de matar e olho de novo agora é 275.
+
+[08:28] Ou seja, o processo foi morto, só que o outro já foi criado imediatamente depois, porque eu tenho um supervisor cuidando desse servidor.
+
+[08:36] Por isso, se eu vier no meu servidor e executar um código escreve e esse escreve morre porque o arquivo não está acessível, o arquivo não existe naquele momento ou algo assim, não tem problema, esse processo será criado de novo e minha aplicação não sai do ar por causa disso.
+
+[08:51] Então essa é beleza de se utilizar Elixir e de se utilizar vários processos para ter a mesma aplicação se comunicando através de mensagens.
+
+[09:00] Repara que o meu código de agendamento não chama diretamente o código de escrita de arquivo. Ele manda uma mensagem através dos servidores e um servidor está pronto para ouvir essa mensagem e executar o código.
+
+[09:12] Repara que foi executada de novo a nossa tarefa, então vamos ver nosso arquivo mais uma vez. Está mostrando um número aleatório.
+
+[09:18] Com isso temos uma aplicação muito simples, mas que está funcionando, está executando o que ela se propõe.
+
+[09:24] Agora falta um detalhe para encerrarmos, que é: se eu tivesse lógicas realmente complexas, regras de negócio, como eu testaria? Como eu verificaria que a minha regra de negócios está realmente funcionando? Falaremos um pouco sobre testes no próximo capítulo.
+
+@@09
+Faça como eu fiz
+PRÓXIMA ATIVIDADE
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@10
+O que aprendemos?
+PRÓXIMA ATIVIDADE
+
+Nesta aula, aprendemos:
+Gerenciamos nossa primeira dependência (pacote externo);
+Efetivamente criamos uma aplicação Mix;
+Definimos configurações para o projeto Mix;
+Utilizamos o conceito de GenServer para receber mensagens.
