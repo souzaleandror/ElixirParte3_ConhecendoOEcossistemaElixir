@@ -687,7 +687,6 @@ Aprendemos um pouco sobre documentação em Elixir.
 
 @@01
 Projeto da aula anterior
-PRÓXIMA ATIVIDADE
 
 Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
 
@@ -749,7 +748,6 @@ Instalando uma dependência
 
 @@03
 Termo OTP
-PRÓXIMA ATIVIDADE
 
 Vimos neste vídeo o termo "OTP" que foi utilizado para criar o módulo agendador do nosso projeto.
 O que significa a sigla "OTP" neste contexto?
@@ -805,7 +803,6 @@ Criando uma aplicação
 
 @@05
 Papel da aplicação
-PRÓXIMA ATIVIDADE
 
 Neste vídeo nós finalmente começamos a criar uma aplicação real usando Elixir. Nós definimos o módulo principal de nossa aplicação.
 Qual o papel do módulo principal de uma aplicação Mix?
@@ -893,7 +890,6 @@ Agendado uma tarefa
 
 @@07
 Para saber mais: Observer
-PRÓXIMA ATIVIDADE
 
 Neste vídeo nós utilizamos o comando :observer.start para analisar detalhes de nossa aplicação, mais especificamente, quais os processos rodando.
 O observer faz parte da Erlang e por isso o acessamos através de um Atom já criado, prontinho para nós.
@@ -1005,7 +1001,6 @@ GenServer
 
 @@09
 Faça como eu fiz
-PRÓXIMA ATIVIDADE
 
 Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com a próxima aula.
 
@@ -1013,10 +1008,311 @@ Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao n
 
 @@10
 O que aprendemos?
-PRÓXIMA ATIVIDADE
 
 Nesta aula, aprendemos:
 Gerenciamos nossa primeira dependência (pacote externo);
 Efetivamente criamos uma aplicação Mix;
 Definimos configurações para o projeto Mix;
 Utilizamos o conceito de GenServer para receber mensagens.
+
+#### 11/09/2023
+
+@05-Testes
+
+@@01
+Projeto da aula anterior
+
+Caso queira, você pode baixar aqui o projeto do curso no ponto em que paramos na aula anterior.
+
+https://github.com/alura-cursos/2323-elixir-3/archive/refs/tags/aula-4.zip
+
+@@02
+Conhecendo o ExUnit
+
+[00:00] Bem-vindos de volta a mais um capítulo desse treinamento, onde finalmente criamos uma aplicação utilizando Elixir. Nós temos dois processos em nossa aplicação. Um envia uma mensagem a cada minuto e o outro processo recebe essa mensagem e escreve em um arquivo.
+[00:15] Claro que é uma aplicação muito simples, mas você já pode pensar nas possibilidades. De novo, um processo fica recebendo requisições HTTP, envia cada requisição por mensagem para outro processo que realiza o processamento da requisição, enfim. O céu é o limite.
+
+[00:32] Inclusive, vou deixar rapidamente um desafio para você. Ao invés de escrever em um arquivo aleatório, faça com que o seu processo que recebe a mensagem a cada minuto verifique se um site está no ar. Assim você pode ter de minuto em minuto uma requisição sendo feita e a verificação se o site está de pé.
+
+[00:48] Para isso você vai precisar pesquisar uma dependência que faz requisição HTTP, ver como ela devolve a resposta, analisar os cabeçalhos e etc. Eu acho que será um bom estudo.
+
+[00:57] Mas o propósito deste capítulo é realizar testes. Você lembra que quando executamos o mix new para criar o nosso projeto ele disse que poderíamos executar mix test?
+
+[01:09] Com o mix test o que acontece? Ele inicializa nossa aplicação, repara que ele está mostrando que os cron Jobs foram adicionados e ele executa todos os nossos testes. Então se tivermos qualquer serviço ou processo que fosse necessário para os nossos testes, poderíamos ter acesso. Isso é bem interessante.
+
+[01:27] Mas continuando, nós já temos dois pontos aparecendo. Cada ponto significa um teste que passou. E ele inclusive nos diz que é um doctest, e talvez nós conversemos sobre isso; um teste efetivamente; e nenhuma falha.
+
+[01:41] Então vamos dar uma olhada rápida nesse teste que já temos. Na pasta “test” nós temos dois arquivos. O “test_helper.exs” é o que o Mix executa efetivamente. Ele basicamente inicializa uma ferramenta chamada ExUnit.
+
+[01:57] Essa ferramenta ExUnit fornece as ferramentas necessárias de teste. Então a partir do ExUnit conseguimos criar casos de teste.
+
+[02:05] Importante citar: esse treinamento não é de testes. Existem treinamentos de testes com linguagens específicas na Alura, e caso você queira saber um pouco mais sobre testes de forma genérica, eu vou deixar uma playlist no Para Saber Mais.
+
+[02:18] Mas por enquanto esse não é um treinamento de testes com Elixir. É só uma base para você entender como os testes funcionam.
+
+[02:25] Continuando, eu tenho um outro arquivo chamado “elixir_teste_test.exs”. Ou seja, quando esse arquivo é executado o que o Mix faz é procurar casos de teste em todos os arquivos “_test” dessa página “test”. E então ele vai executá-los.
+
+[02:41] Então o que temos é exatamente um caso de teste para o nosso “elixir_teste”. E ele usa ExUnit.Case. E ele também utiliza doctest. Podemos falar mais disso depois.
+
+[02:56] Mas primeiro, todo caso de teste precisa ter esse use ExUnit.Case para identificarmos que isso é um caso de testes. E cada um dos nossos testes efetivamente terá o seguinte formato. Então ao invés de definir uma função com def, nós utilizamos a macro test. E isso define um teste. Esse teste terá uma descrição ou um nome. Você descreve o que o teste fará.
+
+[03:20] E dentro você pode realizar asserções ou verificações. Então no caso estamos garantindo que o valor ElixirTeste.hello() é igual ao átomo :world, que é exatamente o que essa função retorna. Se dermos uma olhada no “elixir_teste” é exatamente isso que temos. Temos a definição da função hello, que retorna o átomo :world.
+
+[03:42] Agora vamos criar um novo teste que vai falhar de propósito: test “teste que falha de propósito” do.
+
+[03:54] Dentro o que podemos ter? Podemos fazer qualquer verificação, mas tudo que eu vou fazer é verificar que assert ElixirTeste.hello é diferente de :world. Ou seja, eu estou fazendo exatamente o contrário do teste anterior, só para vermos como funciona a exibição de um teste falhando.
+
+[04:09] Então abrindo o terminal de novo e executando meus testes, repara que eu tenho aqueles dois testes que já existiam, e eles continuam passando, que são os dois pontos.
+
+[04:16] E agora tem um teste falhando. Ele traz o nome do teste que falhou, em qual módulo esse teste foi definido, onde está a definição do teste em si, que no caso é a linha 9, onde está o código que falhou. Ou seja, ele mostra exatamente a linha que falhou, que é o assert.
+
+[04:37] E se tiver alguma coisa que não é um valor explícito, por exemplo, uma chamada de função, ele mostra qual é o valor do resultado dessa função. Então conseguimos entender que estamos verificando que :world é diferente de :world. E isso obviamente vai falhar.
+
+[04:51] Só que antes de corrigir ou apagar esse teste, imagina que temos uma aplicação real com vários testes verificando várias regras de negócio e aplicando várias verificações, e eu queira analisar somente alguns testes. Isso pode demorar muito. Embora o Mix seja rápido, se eu tiver um monte de testes, uma aplicação robusta, isso pode levar um bom tempo.
+
+[05:11] Então se eu quiser, por exemplo, rodar somente esse teste que criamos, eu posso fazer mix test test/elixir_teste_test.exs. Eu posso executar somente esse arquivo de teste.
+
+[05:21] Então ele vai encontrar o arquivo de configuração sem problema nenhum, mas só vai executar os testes que estão nesse arquivo. Só que no nosso caso realmente só temos um arquivo.
+
+[05:30] E se eu quisesse, por exemplo, filtrar de alguma outra forma? Existe o formato de tags para filtrarmos o que queremos executar ou não. Então eu posso criar uma tag de falha e adicionar o valor true: @tag falha: true. Então eu estou dizendo que esse teste faz parte da tag falha. Então se eu quiser executar somente ele, eu posso executar mix test --only falha.
+
+[05:51] E com isso, repare que somente esse teste foi executado. Ele está incluindo todas as tags de teste, ou seja, está excluindo a tag padrão e incluindo apenas a tag falha. E esse é o único teste que foi executado.
+
+[06:06] Repare que dois testes que existem foram excluídos, eles não foram executados.
+
+[06:11] Agora eu posso fazer também o contrário: executar todos os testes menos os que têm essa tag. Então ao invés de only, eu posso colocar exclude, para excluir esse teste da nossa suite. E repara que agora todos estão passando e temos um que foi excluído.
+
+[06:25] Existem outras formas de filtrarmos quais testes de executar. Por exemplo, no “test_helper” podemos adicionar algumas configurações. Mas eu acho que esse é o básico para começarmos.
+
+[06:35] E no próximo vídeo vamos criar um teste, mesmo que não tão útil assim, para o nosso escritor de arquivo aleatório.
+
+@@03
+Filtros
+
+Vimos neste vídeo além de como executar e analisar a saída de nossos testes, como filtrar quais testes serão executados.
+Quais as alternativas a seguir foram mostradas como possíveis para filtrarmos quais testes serão executados ou não?
+
+Alternativa correta
+Através do uso de tags.
+ 
+Alternativa correta! É possível excluir os testes marcados com uma tag ou executar apenas eles.
+Alternativa correta
+Executando apenas 1 arquivo de testes.
+ 
+Alternativa correta! É possível executar apenas os testes definidos em um arquivo específico passando-o por parâmetro para o comando mix test.
+Alternativa correta
+Através do nome dos testes.
+
+@@04
+Para saber mais: Testes
+
+Este treinamento não é sobre testes, mas esse é um conteúdo tão importante que eu acredito ser válido falarmos um pouco já que estamos aprendendo sobre um novo ecossistema.
+Se você ainda não tem familiaridade com testes, pode dar uma olhada nessa playlist repleta de conteúdos sobre testes:
+
+Intro a Testes Automatizados
+Se você já tem domínio de alguma outra linguagem, pode conferir se há treinamentos de testes utilizando-a aqui na Alura também. ;-)
+
+https://www.youtube.com/playlist?list=PL3j2sfzg3FPsPiaDUmDDKNvco49YMdj8f
+
+@@05
+Criando um novo teste
+
+[00:00] Antes de qualquer coisa vamos remover esse teste que eu adicionei com a tag, porque ele está atrapalhando nossa suíte, e vamos criar um novo teste. Eu vou criar um teste para o nosso escritor de arquivo, que escreve um número aleatório. E é comum que sigamos a mesma estrutura de diretórios em “lib” e em “test”.
+[00:21] Então vou criar um novo arquivo que estará dentro de “elixir_teste” e vai se chamar “escreve_numero_aleatorio_test”. Sempre terminamos o nome dos nossos arquivos com “test”. E o arquivo é .exs, porque ele não é um módulo que vai ser compilado necessariamente, ele pode ser só executado.
+
+[00:41] Então vamos definir esse módulo, e repare que todos os nossos testes estão dentro do módulo ElixirTesteTest. Então defmodule ElixirTesteTest.EscreveNumeroAleatorioTest do. E dentro, de novo, eu preciso usar ExUnit.Case, porque isso faz com que meus testes sejam executados.
+
+[01:05] E dentro eu posso ter vários testes. Vamos testar primeiro que duas escritas no arquivo geram números diferentes: test “2 escritas no arquivo geram números diferentes” do.
+
+[01:20] Então o que eu vou aplicar? Esse teste não está escrito da melhor forma possível, mas é só para termos um teste mais próximo do real dentro do nosso código.
+
+[01:31] Eu preciso usar aquele nosso código, então ElixirTeste.EscreveNumeroAleatorio.escreve.
+
+[01:36] Esse código escreve num arquivo específico. Então vamos pegar o conteúdo desse arquivo: primeiro_conteudo = File.read!(Path.join( [:code.priv_dir(:elixir_teste), “arquivo.txt”])).
+
+[02:07] Agora eu vou escrever de novo nesse arquivo e vou pegar de novo esse conteúdo, só que agora ele vai ser o segundo conteúdo. Eu quero garantir que o primeiro conteúdo seja diferente do segundo. Dessa forma eu sei que em duas escritas os números gerados são diferentes.
+
+[02:26] Então vamos fazer assert primeiro_conteudo != segundo_conteudo. Salvei, e se tudo der certo podemos executar esse teste com mix test. Aparentemente tudo está funcionando, temos um teste a mais.
+
+[02:41] Normalmente é uma boa prática para verificarmos se nosso teste realmente está testando alguma coisa fazer o teste falhar. Então vamos executar isso de novo e agora nosso teste falha.
+
+[02:51] Ele está tentando verificar se esses dois conteúdos são iguais, sendo que na verdade eles não são. Então perfeito, conseguimos executar nosso teste.
+
+[03:01] Agora duas coisas: primeiro, repare que temos a execução de um doctest. Não entraremos em detalhes de como criar doctests, mas eu quero te mostrar o que é isso rapidamente.
+
+[03:14] Nós temos no módulo principal “elixir_teste” uma documentação um pouco maior. Temos a documentação do módulo em si e uma documentação do que essa função Hello world faz. Inclusive ela tem alguns exemplos.
+
+[03:29] E dentro desses exemplos ela utiliza o seguinte formato: iex>, seguido de uma execução de código, como ele executaria esse código. E embaixo tem a saída desse código. Com isso o ExUnit consegue pegar esse pedaço da documentação, executar esse código e verificar se a saída realmente é essa.
+
+[03:52] Então se existir essa possibilidade de você ter um método cuja saída é sempre a mesma baseado nos parâmetros, você nem precisa criar um caso de teste. Na sua documentação você já tem testes automáticos sendo escritos para você se você colocar assim.
+
+[04:06] Então dessa forma, se eu mudar a saída de :world para :hello, por exemplo, e executar os testes, repare que eu terei um outro teste falhando. Eu tenho agora o meu doctest falhando, pois onde ele esperava world ele recebeu na verdade um hello.
+
+[04:19] Isso é muito interessante, porque se você está criando código para disponibilizar para outras pessoas, você garante que além de ter uma boa documentação, essa documentação está realmente atualizada.
+
+[04:31] Porque se em algum momento esse código retornar algo diferente de world você não vai precisar se lembrar de atualizar a documentação, porque isso vai quebrar um teste se você tiver doctests.
+
+[04:41] E para você informar o Elixir que você quer executar os doctests é só em algum caso de teste você adicionar doctest, seguido do módulo que você quer testar, que você quer ler os doctests.
+
+[04:52] De novo, isso se chama doctest, e eu queria juntar com esse vídeo onde escrevemos um teste.
+
+[04:58] Mas eu disse que eu queria falar de duas coisas. A primeira foi sobre doctest, que é bastante interessante, em minha opinião. E agora a segunda é que eu estou tendo que escrever no sistema de arquivos mesmo, depois tendo que ler esse arquivo, e esse arquivo nem está dentro do nosso diretório de teste. Isso está meio bagunçado.
+
+[05:16] E se você entende de testes você já deve conhecer dublês de testes. Então vamos entender como podemos utilizar dublês em Elixir através do ExUnit.
+
+@@06
+Doctests
+
+Neste vídeo nós vimos algo bastante interessante: O elixir executou um teste que nós nem mesmo escrevemos.
+Como foi possível a execução de um teste que nós não escrevemos explicitamente?
+
+Alternativa correta
+Através da documentação do módulo a ser testado.
+ 
+Alternativa correta
+Através de arquivos de configuração.
+ 
+Alternativa correta
+Através da documentação da função a ser testada.
+ 
+Alternativa correta! Se a documentação da função tiver um bloco indentado começando com iex> ou ...> seguido de um exemplo de código, este código será executado e seu retorno será comparado com o que estiver na linha seguinte. Através da chamada de doctest NomeDoModulo no módulo de testes nós informamos que queremos executar os doctests.
+
+@@07
+Usando mock para criar um spy
+
+[00:00] Esse vídeo será um pouco mais complexo, então eu já instalei uma dependência para não tomar muito seu tempo.
+[00:07] Essa dependência se chama Mock. Eu estou instalando essa dependência como já fizemos antes, através do nosso “mix.exs”, então só adicionei esse conteúdo nas nossas dependências.
+
+[00:18] E ele nos ajuda a criar Mocks, a criar dublês de teste. De novo, se você não entende muito sobre esse assunto eu deixei um Para Saber Mais nesse capítulo falando sobre testes e lá tem um vídeo sobre dublês.
+
+[00:29] Mas continuando, o que eu quero fazer é evitar essa escrita de arquivos. Eu não quero realmente escrever no arquivo e etc. Então eu vou criar uma nova função que se chama File.write. Basicamente é isso, eu vou fingir que eu tenho uma função File.write. Você já vai entender.
+
+[00:50] Vou criar um teste e eu vou chamá-lo de “com mock”. Claro que você deve nomear seus testes de forma correta, mas é só para não ficar pensando muito bem nos testes. Como eu utilizo essa biblioteca? Eu primeiro preciso importar mock: import Mock.
+
+[01:15] Por que fazemos o import? Se você se lembra bem, nós temos macros. Então eu poderei utilizar uma macro chamada with_mock. Essa macro espera um módulo e uma keyword list que vamos implementar.
+
+[01:32] Então o que eu vou informar? Eu tenho um módulo File e eu quero implementar a função “write!”, que é a função que utilizamos no nosso escritor, no nosso “escreve_numero_aleatorio”.
+
+[01:50] Essa função eu quero trocar por alguma outra coisa, uma função anônima: write!: fn (). Então eu sei que a função write espera um caminho, que eu não vou precisar usar, e um conteúdo, e isso assim usaremos em algum momento.
+
+[02:07] Dentro dessa função eu preciso fazer alguma coisa. O que eu quero fazer é armazenar em algum lugar todos os conteúdos que forem escritos. E dentro desse with_mock eu vou escrever duas vezes.
+
+[02:31] Tudo que está dentro desse do e end vai utilizar uma função de mentira do File. Ou seja, esse File.write! que será utilizado dentro disso é um de mentira, e será essa função que eu estou passando.
+
+[02:46] Então eu posso executar o que eu quiser. E o que eu vou executar? Eu vou armazenar isso em algum lugar, cada uma dessas escritas. Então a cada vez que eu chamar essa função eu quero adicionar numa lista, por exemplo, e no final eu quero pegar dois itens desta lista e eu quero verificar se o primeiro é igual ao segundo. É isso que eu vou fazer.
+
+[03:04] E existe algo que o Erlang fornece para nós chamado ETS. Vou pesquisar para mostrar para vocês. Isso significa Built-in term storage.
+
+[03:21] Basicamente é um local onde você consegue armazenar dados utilizando Erlang. Então é basicamente uma tabela de armazenamento de dados, só que isso fica em memória. É como se fosse um banco de dados em memória que o Erlang já te fornece para você armazenar coisas pequenas, ou às vezes até muitas coisas. Não vamos entrar nesse detalhe sobre Erlang.
+
+[03:43] Mas eu vou utilizar esta funcionalidade para criar conteúdos, por exemplo. Então eu vou adicionar os dois conteúdos desses arquivos em alguma dessas tabelas.
+
+[03:52] Então vamos criar essa tabela através de ETS. Tudo que é do Erlang eu consigo acessar através de um atom. E eu vou criar uma nova tabela chamada “conteúdos”. E eu posso passar algumas configurações para ela.
+
+[04:10] Por exemplo, eu vou utilizar um conjunto. Eu não posso ter dados repetidos. E isso será privado, só o meu próprio processo pode acessar isso :set, :private. Mas isso já é o padrão, então eu nem precisaria informar.
+
+[04:22] Só que essa eu preciso: :named_table. Basicamente, quando eu informo a opção named_table eu posso acessar essa tabela em qualquer lugar a partir deste átomo, a partir desse nome. Se eu já tenho isso, eu posso toda vez que receber esse conteúdo adicionar, inserir um novo conteúdo tendo esse conteúdo.
+
+[04:47] Eu estou utilizando um Mock. E o que esse Mock faz? Ele pega a função write! do módulo File e vai substituir por essa função.
+
+[04:56] E essa função adiciona na tabela de conteúdos uma tupla contendo esse conteúdo, porque com tuplas conseguimos trabalhar melhor, só por isso.
+
+[05:05] Continuando, agora dessa tabela de conteúdos eu vou querer apagar todos os conteúdos. Então vou criar uma variável de conteúdos e vou pegar de ETS tab2list. Ou seja, essa tabela de conteúdos eu vou converter numa lista. Agora eu tenho uma lista onde cada um dos elementos será o conteúdo em si.
+
+[05:29] Então vamos pegar o primeiro valor e o restante de conteúdos: [primeiro_valor | conteudos] = conteudos. Lembra que isso é uma lista, então eu estou pegando o primeiro elemento e adicionando o restante em uma variável com o mesmo nome, então ele está mudando o valor da variável. Lembra que a lista original não é alterada, só o que altera é para onde essa variável aponta.
+
+[05:51] E embaixo disso eu posso pegar o segundo valor e ignorar o restante dessa lista, que vai estar vazia de conteúdos: [segundo_valor | _] = conteudos. Porque essa lista tem dois elementos só. Peguei o primeiro e depois peguei o segundo. Então o segundo será basicamente uma lista vazia.
+
+[06:04] Agora eu posso garantir que o primeiro valor é diferente do segundo valor: assert primeiro_valor != segundo_valor.
+
+[06:10] Então eu utilizei uma tabela do Erlang, uma ETS para conseguirmos armazenar valores utilizando o Mock e no final fazemos a verificação.
+
+[06:24] Essa técnica na verdade não se chama Mock. Mock é só um termo genérico que essa biblioteca utiliza para gerar qualquer tipo de dublê.
+
+[06:32] O que nós fizemos na prática foi um Spy. Nós estamos armazenando os dados utilizando um dublê de teste para depois conferir esses dados. Mas tudo bem, de novo, se você não entende muito sobre esse assunto não precisa se atentar aos termos.
+
+[06:45] Mas vamos garantir que eu não escrevi anda errado e vamos ver se isso tudo continua passando com mix test. Agora está recompilando nosso projeto e eu esqueci de um T em insert. Agora se tudo der certo vai funcionar. E tudo funcionando.
+
+[07:03] Se eu substituir o assert primeiro_valor != segundo_valor para assert primeiro_valor == segundo_valor, eu espero que isso falhe. E perfeito, está falhando. Repara que ele está olhando que a nossa tupla tem valores diferentes.
+
+[07:13] Dessa forma conseguimos criar um teste relativamente complexo, mesmo que seja para um código simples, para não precisarmos utilizar o sistema de arquivos e etc.
+
+[07:22] Então dessa forma nós estamos substituindo uma função existente utilizando a biblioteca Mock e utilizamos o ETS da Erlang para armazenar valores. E com isso temos um teste relativamente complexo.
+
+@@08
+Para saber mais: ETS
+
+Este vídeo foi um pouco mais complexo pois além de mostrar a biblioteca mocks também fez uso de ETS.
+Para saber mais sobre mocks, ou seja, dublês de testes, você pode conferir a playlist sugerida há alguns capítulos. Aqui está o link de novo:
+
+Intro a Testes Automatizados
+Já se quiser entender melhor sobre ETS, você pode conferir aqui:
+
+Erlang - ETS
+
+https://www.youtube.com/playlist?list=PL3j2sfzg3FPsPiaDUmDDKNvco49YMdj8f
+
+https://erlang.org/doc/man/ets.html
+
+@@09
+Faça como eu fiz
+
+Chegou a hora de você seguir todos os passos realizados por mim durante esta aula. Caso já tenha feito, excelente. Se ainda não, é importante que você execute o que foi visto nos vídeos para poder continuar com os próximos cursos que tenham este como pré-requisito.
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@10
+Projeto final do curso
+
+Caso queira, você pode baixar aqui o projeto completo implementado neste curso.
+
+https://github.com/alura-cursos/2323-elixir-3/archive/refs/tags/aula-5.zip
+
+@@11
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Conhecemos o ExUnit e rodamos os testes existentes;
+Criamos nosso primeiro teste automatizado em Elixir;
+Aprendemos a usar um pacote externo para mocks;
+Conhecemos o ETS da Erlang.
+
+@@12
+Conclusão
+
+[00:00] Parabéns por terem chegado ao final desse treinamento de Elixir. Agora nós encerramos um ciclo. Nós já vimos um pouco da sintaxe do Elixir, nos aprofundamos em alguns conceitos, vimos formas de execução, e agora criamos uma aplicação.
+[00:14] Claro que essa aplicação não é a mais complexa do mundo, mas ela é uma ótima base para você expandir seus conhecimentos de Elixir.
+
+[00:20] Com os conhecimentos que você adquiriu nesse treinamento você já consegue desenvolver aplicações reais e aprender novas ferramentas como, por exemplo, talvez um framework web. Então vamos recapitular rapidamente o que vimos nesse treinamento.
+
+[00:32] Começamos falando sobre o ecossistema do Elixir. Falamos sobre o Hex, o Dependency Manager, ou Package Manager do Elixir.
+
+[00:39] Vimos também como utilizar usando o Mix. Na nossa função de dependências inclusive utilizamos duas dependências.
+
+[00:47] Falamos um pouco sobre o Supervisor, ou uma Supervision Tree. Ou seja, falamos de como supervisionar processos.
+
+[00:54] E na verdade, até temos um supervisor criado na nossa aplicação. Então nós inicializamos uma Supervision Tree. E vimos como unir isso tudo através do Mix. Inclusive o arquivo “mix.exs” é o arquivo principal de entrada do Mix.
+
+[01:08] Um detalhe interessante é que isso tudo vira no final uma aplicação. Então dentro temos uma aplicação do Mix podendo ser gerada. Isso é bastante interessante. E dentro de “ebin” repara que temos um “.app”. É uma aplicação que roda na Erlang.
+
+[01:23] Então se você quiser distribuir essa aplicação de Erlang por algum motivo, essa é uma das possibilidades. Existem outras, mas não vamos nos alongar.
+
+[01:30] Tendo entendido um pouco do que é o Mix, demos um passo atrás e aprendemos sobre processos. Vimos como criar processos através da função Spawn. Vimos como nos comunicar mandando mensagens com a função send e recebendo com a macro receive.
+
+[01:45] Também vimos um pouco sobre as abstrações de processos, como Agents, Tasks e GenServers. E esse último utilizamos na prática na hora de criar uma aplicação.
+
+[01:55] Então no final temos uma aplicação com dois processos. O primeiro é um agendador de tarefas que utiliza uma biblioteca externa que utiliza configurações do nosso sistema. E o segundo é um servidor, um GenServer que criamos na mão para ficar ouvindo mensagens que esse agendador pode mandar.
+
+[02:12] Com isso temos uma aplicação que de minuto em minuto escreve um número aleatório no arquivo. Isso é bem interessante, e nesse processo também vimos como analisar o observer, que é um gerenciador de tarefas, vamos dizer assim, da Erlang.
+
+[02:26] E no final ainda demos de bônus uma olhada em testes. Vimos os testes que já existiam, aprendemos sobre doctest, que é algo muito interessante do Elixir, e até escrevemos alguns testes, acessando o sistema de arquivos e inclusive utilizando o Mocks.
+
+[02:41] De novo, isso não é tudo que temos para ver sobre Elixir, nem de longe. Isso é somente uma boa base. Com isso você praticamente já consegue andar com as próprias pernas e aprender conceitos novos, seja em documentações, em outros artigos e até dando uma olhada em pacotes do Hex.
+
+[02:56] Então meu convite é para você implementar aquele desafio de, ao invés de escrever no arquivo um número aleatório, fazer uma requisição HTTP e verificar se um site está no ar. Pega uma lista de sites e adiciona em um arquivo. Um processo lê esses sites e manda mensagens para outro processo verificar se eles estão no ar.
+
+[03:13] Começa a brincar com essa base que temos. Depois você sai disso e cria novos projetos. Mais uma vez, parabéns por ter chegado até o final desse treinamento. Realmente espero que você tenha gostado e tirado bastante proveito.
+
+[03:24] Se ficou com alguma dúvida no processo, não hesite. Temos um fórum onde nossa comunidade de alunos, moderadores e instrutores é muito solícita, e com certeza alguém vai conseguir te ajudar.
+
+[03:35] Então muito obrigado por ter me acompanhado até aqui, por ter aguentado minha voz até o final. Espero te ver em outros treinamentos na Alura.
